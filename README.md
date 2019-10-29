@@ -2,8 +2,10 @@
 
 This is a sample e-commerce application built for learning purposes.
 
-Here's how to deploy it on CentOS systems manually.
 I have automated the whole process using Ansible Playbook. The yml file can be found on the root directory.
+Used role based installation for MariaDB and created loops for installing applications and running firewall commands.
+
+Here's how to deploy it on CentOS systems manually.
 
 ## Deploy Pre-Requisites
 
