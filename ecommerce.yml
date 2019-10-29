@@ -1,0 +1,63 @@
+-
+  name: 'Deploying ecommerce app'
+  hosts: target1
+
+  vars:
+    mariadb_users:
+      -
+        name: ecomuser
+        password: ecompassword
+        priv: '*.*:ALL'
+    mariadb_databases:
+      -
+        name: ecomdb
+        init_script: db-load-script.sql
+
+  tasks:
+    -
+      name: 'Installing firewall, httpd, php, php-mysql and git'
+      yum:
+        name:
+          - firewalld
+          - httpd
+          - php
+          - php-mysql
+          - git
+
+    -
+      name: 'Starting MariaDB'
+      service:
+        name: mariadb
+        state: started
+    -
+      name: 'Adding firewall rules'
+      command: "{{ item }}"
+      with_items:
+        - firewall-cmd --permanent --zone=public --add-port=3306/tcp
+        - firewall-cmd --reload
+        - firewall-cmd --permanent --zone=public --add-port=80/tcp
+        - firewall-cmd --reload
+
+    -
+      name: 'Updating httpd conf'
+      lineinfile:
+        dest: /etc/httpd/conf/httpd.conf
+        regexp: DirectoryIndex index.html
+        line: DirectoryIndex index.php
+
+    -
+      name: 'starting httpd'
+      service:
+        name: httpd
+        state: started
+    -
+      name: removing folder'
+      file:
+        path: /var/www/html/
+        state: absent
+    -
+      name: 'cloning git'
+      command: git clone https://github.com/harista/learning-app-ecommerce.git /var/www/html/
+
+  roles:
+    - bertvv.mariadb
